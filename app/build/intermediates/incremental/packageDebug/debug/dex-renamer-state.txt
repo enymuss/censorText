@@ -1,0 +1,4 @@
+#Sat Apr 04 20:33:07 CEST 2020
+base.0=/Users/userX/Downloads/HiAiOCR/app/build/intermediates/transforms/dexMerger/debug/0
+renamed.0=classes.dex
+file.0=/Users/userX/Downloads/HiAiOCR/app/build/intermediates/transforms/dexMerger/debug/0/classes.dex
