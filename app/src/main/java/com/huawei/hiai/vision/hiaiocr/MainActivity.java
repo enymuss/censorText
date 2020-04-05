@@ -16,11 +16,13 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.net.Uri;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
@@ -49,7 +51,11 @@ import com.huawei.hiai.vision.visionkit.text.TextLine;
 
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -57,6 +63,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView et;
     private ImageView iv;
     private Button btn4ocr;
+    private Button btnShare;
+    private Button btnSave;
     private Paint paint;
     private Uri savedImage;
     private CheckBox checkBlock;
@@ -82,7 +90,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     ClipboardManager cmb = (ClipboardManager) getApplicationContext().getSystemService(Context.CLIPBOARD_SERVICE);
                     cmb.setText(data);
                     iv.setImageBitmap(bmDraw);
-                    et.setText(data);
                     Log.d(TAG, "handleMessage:  | " + data.startsWith("{\"resultCode\":200") + "=" + data.startsWith("{\"resultCode\":201") + "re" + (result_final.length() == 0));
                     if (data.startsWith("{\"resultCode\":200") || data.startsWith("{\"resultCode\":201") || result_final.length() == 0) {
                         Log.i(TAG, "Input pictures are not supported at this time, so stay tuned.");
@@ -120,6 +127,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         textDetector = new TextDetector(MainActivity.this);
 
         btn4ocr = (Button) findViewById(R.id.btn4ocr);
+        btn4ocr.setOnClickListener(this);
+        btnShare = (Button) findViewById(R.id.btnShare);
+        btnShare.setOnClickListener(this);
+        btnSave = (Button) findViewById(R.id.btnSave);
+        btnSave.setOnClickListener(this);
 
         checkBlock = (CheckBox) findViewById(R.id.checkBlock);
         checkBlock.setOnClickListener(this);
@@ -130,11 +142,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         checkBlock.setChecked(true);
         iv = (ImageView) findViewById(R.id.imageView);
-        et = (TextView) findViewById(R.id.editText);
-        et.setTextIsSelectable(true);
 
-        et.setMovementMethod(ScrollingMovementMethod.getInstance());
-        btn4ocr.setOnClickListener(this);
+
+
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setColor(Color.GREEN);
         paint.setStyle(Paint.Style.STROKE);
@@ -170,14 +180,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Log.e(TAG, "select uri:" + selectedImage.toString());
 
 
-            Bitmap imageBitmap = null;
-            try {
-                imageBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            iv.setImageBitmap(imageBitmap);
+//            Bitmap imageBitmap = null;
+//            try {
+//                imageBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//
+//            iv.setImageBitmap(imageBitmap);
 
             /*start OCR in a new thread*/
             new Thread(new Runnable() {
@@ -207,6 +217,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 intent.setType("image/*");
                 requestCode = REQUEST_CHOOSE_PHOTO_CODE4OCR;
                 startActivityForResult(intent, requestCode);
+                break;
+            case R.id.btnShare:
+                Intent share = new Intent(Intent.ACTION_SEND);
+                String savedFile = saveImageFile(bmDraw, "/CensorText");
+
+                Uri imageUri = FileProvider.getUriForFile(getApplicationContext(),
+                        BuildConfig.APPLICATION_ID + ".fileprovider",
+                        new File(savedFile));
+
+                share.setType("image/*");
+                share.putExtra(Intent.EXTRA_STREAM, imageUri);
+                startActivity(Intent.createChooser(share, "Share Image"));
+                break;
+            case R.id.btnSave:
+                saveImageFile(bmDraw, "/CensorText");
                 break;
             case R.id.checkBlock:
                 if (checkBlock.isChecked()) {
@@ -242,6 +267,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }) {
             }.start();
         }
+    }
+
+    public String saveImageFile(Bitmap image, String folder){
+
+        String now = Long.toString(new Date().getTime());
+
+        File imageFile = new File( Environment.getExternalStorageDirectory() + folder + "/");
+        if (!imageFile.exists()) {
+            imageFile.mkdirs();
+        }
+
+        File imageName = new File(imageFile, now + ".jpg" );
+
+        try {
+            FileOutputStream outputStream = new FileOutputStream(imageName);
+            image.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+            outputStream.flush();
+            outputStream.close();
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        Uri contentUri = Uri.fromFile(imageName);
+        mediaScanIntent.setData(contentUri);
+        this.sendBroadcast(mediaScanIntent);
+
+        return imageName.toString();
     }
 
     private BoundingBox covertPointsToBoundingBox(Point[] cornerPoints) {

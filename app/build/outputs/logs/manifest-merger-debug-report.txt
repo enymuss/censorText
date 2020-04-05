@@ -1,9 +1,20 @@
 -- Merging decision tree log ---
+provider#android.support.v4.content.FileProvider
+INJECTED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml:24:9-32:20
+	android:grantUriPermissions
+		ADDED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml:28:13-47
+	android:authorities
+		INJECTED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml
+		ADDED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml:26:13-64
+	android:exported
+		ADDED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml:27:13-37
+	android:name
+		ADDED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml:25:13-67
 manifest
-ADDED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml:2:1-26:12
-INJECTED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml:2:1-26:12
-INJECTED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml:2:1-26:12
-INJECTED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml:2:1-26:12
+ADDED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml:2:1-36:12
+INJECTED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml:2:1-36:12
+INJECTED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml:2:1-36:12
+INJECTED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml:2:1-36:12
 MERGED from [:huawei-hiai-vision:] /Users/userX/.gradle/caches/transforms-1/files-1.1/huawei-hiai-vision.aar/6917e446d7ec6f7f51519ecd1de772cc/AndroidManifest.xml:2:1-9:12
 MERGED from [com.android.support:appcompat-v7:26.1.0] /Users/userX/.gradle/caches/transforms-1/files-1.1/appcompat-v7-26.1.0.aar/733aba72cc82285cdcb8f942519623e6/AndroidManifest.xml:17:1-31:12
 MERGED from [com.android.support.constraint:constraint-layout:1.0.2] /Users/userX/.gradle/caches/transforms-1/files-1.1/constraint-layout-1.0.2.aar/0c182ede658a1b3a139e7c49974c0b40/AndroidManifest.xml:2:1-11:12
@@ -16,20 +27,20 @@ MERGED from [com.android.support:support-core-utils:26.1.0] /Users/userX/.gradle
 MERGED from [com.android.support:support-core-ui:26.1.0] /Users/userX/.gradle/caches/transforms-1/files-1.1/support-core-ui-26.1.0.aar/61a9c0aca61f6fad5c118ab26cd9b36a/AndroidManifest.xml:17:1-31:12
 MERGED from [com.android.support:support-compat:26.1.0] /Users/userX/.gradle/caches/transforms-1/files-1.1/support-compat-26.1.0.aar/a2c0d2a3cf3b94f89884b31ece50f979/AndroidManifest.xml:17:1-31:12
 MERGED from [android.arch.lifecycle:runtime:1.0.0] /Users/userX/.gradle/caches/transforms-1/files-1.1/runtime-1.0.0.aar/f0985c519c279c260b2befd5d8d948aa/AndroidManifest.xml:17:1-30:12
-INJECTED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml:2:1-26:12
-INJECTED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml:2:1-26:12
-INJECTED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml:2:1-26:12
+INJECTED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml:2:1-36:12
+INJECTED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml:2:1-36:12
+INJECTED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml:2:1-36:12
 	package
 		ADDED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml:3:5-45
 		INJECTED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml
 		INJECTED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml
 	android:versionName
 		INJECTED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml
-		ADDED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml:2:1-26:12
+		ADDED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml:2:1-36:12
 		INJECTED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml
 	android:versionCode
 		INJECTED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml
-		ADDED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml:2:1-26:12
+		ADDED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml:2:1-36:12
 		INJECTED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml
 	xmlns:android
 		ADDED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml:2:11-69
@@ -50,7 +61,7 @@ ADDED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml:8:5-8
 	android:name
 		ADDED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml:8:22-77
 application
-ADDED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml:10:5-24:19
+ADDED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml:10:5-34:19
 MERGED from [com.android.support:appcompat-v7:26.1.0] /Users/userX/.gradle/caches/transforms-1/files-1.1/appcompat-v7-26.1.0.aar/733aba72cc82285cdcb8f942519623e6/AndroidManifest.xml:25:5-29:19
 MERGED from [com.android.support:appcompat-v7:26.1.0] /Users/userX/.gradle/caches/transforms-1/files-1.1/appcompat-v7-26.1.0.aar/733aba72cc82285cdcb8f942519623e6/AndroidManifest.xml:25:5-29:19
 MERGED from [com.android.support.constraint:constraint-layout:1.0.2] /Users/userX/.gradle/caches/transforms-1/files-1.1/constraint-layout-1.0.2.aar/0c182ede658a1b3a139e7c49974c0b40/AndroidManifest.xml:9:5-20
@@ -140,6 +151,12 @@ INJECTED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml
 		ADDED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml
 		MERGED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml
 		INJECTED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml
+meta-data#android.support.FILE_PROVIDER_PATHS
+ADDED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml:29:13-31:57
+	android:resource
+		ADDED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml:31:17-55
+	android:name
+		ADDED from /Users/userX/Downloads/HiAiOCR/app/src/main/AndroidManifest.xml:30:17-67
 meta-data#android.support.VERSION
 ADDED from [com.android.support:appcompat-v7:26.1.0] /Users/userX/.gradle/caches/transforms-1/files-1.1/appcompat-v7-26.1.0.aar/733aba72cc82285cdcb8f942519623e6/AndroidManifest.xml:26:9-28:38
 MERGED from [com.android.support:animated-vector-drawable:26.1.0] /Users/userX/.gradle/caches/transforms-1/files-1.1/animated-vector-drawable-26.1.0.aar/503dd8f7aeb09adc77e46801fd0af65a/AndroidManifest.xml:23:9-25:38
