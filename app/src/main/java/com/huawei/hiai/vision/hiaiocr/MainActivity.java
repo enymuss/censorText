@@ -3,8 +3,6 @@ package com.huawei.hiai.vision.hiaiocr;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.ClipboardManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -12,9 +10,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
@@ -25,18 +25,15 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.huawei.hiai.vision.common.ConnectionCallback;
 import com.huawei.hiai.vision.common.VisionBase;
 import com.huawei.hiai.vision.text.TextDetector;
@@ -46,15 +43,13 @@ import com.huawei.hiai.vision.visionkit.text.Text;
 import com.huawei.hiai.vision.visionkit.text.TextBlock;
 import com.huawei.hiai.vision.visionkit.text.TextConfiguration;
 import com.huawei.hiai.vision.visionkit.text.TextDetectType;
-import com.huawei.hiai.vision.visionkit.text.TextElement;
 import com.huawei.hiai.vision.visionkit.text.TextLine;
 
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -67,9 +62,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnSave;
     private Paint paint;
     private Uri savedImage;
-    private CheckBox checkBlock;
-    private CheckBox checkLine;
-    private CheckBox checkChar;
+    private String selectedImagePath;
+
+    private List<TextBlock> imageTextcontents;
 
     private static final int REQUEST_CHOOSE_PHOTO_CODE4OCR = 2;
     private TextDetector textDetector;
@@ -78,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Gson gson;
 
     private String result_final = "init";
+    List<Integer> changeRectIndex = new ArrayList<Integer>();
 
     @SuppressLint("HandlerLeak")
     Handler mHandler = new Handler() {
@@ -87,8 +83,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             switch (msg.what) {
                 case 0:
                     String data = (String) msg.obj;
-                    ClipboardManager cmb = (ClipboardManager) getApplicationContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                    cmb.setText(data);
                     iv.setImageBitmap(bmDraw);
                     Log.d(TAG, "handleMessage:  | " + data.startsWith("{\"resultCode\":200") + "=" + data.startsWith("{\"resultCode\":201") + "re" + (result_final.length() == 0));
                     if (data.startsWith("{\"resultCode\":200") || data.startsWith("{\"resultCode\":201") || result_final.length() == 0) {
@@ -133,16 +127,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnSave = (Button) findViewById(R.id.btnSave);
         btnSave.setOnClickListener(this);
 
-        checkBlock = (CheckBox) findViewById(R.id.checkBlock);
-        checkBlock.setOnClickListener(this);
-        checkLine = (CheckBox) findViewById(R.id.checkLine);
-        checkLine.setOnClickListener(this);
-        checkChar = (CheckBox) findViewById(R.id.checkChar);
-        checkChar.setOnClickListener(this);
-
-        checkBlock.setChecked(true);
         iv = (ImageView) findViewById(R.id.imageView);
+        iv.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                int action = event.getAction();
+                int x = (int) event.getX();  // or getRawX();
+                int y = (int) event.getY();
+                switch(action) {
+                    case MotionEvent.ACTION_DOWN:
+                        Log.e( TAG, "X: " + x + "; Y: " + y );
+                        if (imageTextcontents != null) {
+                            for (TextBlock block : imageTextcontents) {
+                                if (null != block.getTextLines()) {
+                                    for (int i = 0; i < block.getTextLines().size(); i++) {
+                                        TextLine line = block.getTextLines().get( i );
+                                        RectF r = new RectF( toRect( line.getLineRect() ) );
+                                        // scale r to imageview
+                                        Matrix scaleBitmapToImageView = iv.getImageMatrix();
+                                        scaleBitmapToImageView.mapRect( r );
 
+                                        if (r.contains( (int) event.getX(), (int) event.getY() )) {
+                                            if (changeRectIndex.indexOf( i ) == -1) {
+                                                changeRectIndex.add( i );
+                                            } else {
+                                                changeRectIndex.remove( changeRectIndex.indexOf( i  ));
+                                            }
+                                            reDrawBitmap(false);
+                                            Log.e( TAG, line.getValue() );
+                                        };
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                }
+                return true;
+            }
+        });
 
 
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -178,16 +200,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             final Uri selectedImage = data.getData();
             Log.e(TAG, "select uri:" + selectedImage.toString());
-
-
-//            Bitmap imageBitmap = null;
-//            try {
-//                imageBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//
-//            iv.setImageBitmap(imageBitmap);
+            changeRectIndex.clear();
 
             /*start OCR in a new thread*/
             new Thread(new Runnable() {
@@ -220,6 +233,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.btnShare:
                 Intent share = new Intent(Intent.ACTION_SEND);
+                reDrawBitmap( true );
                 String savedFile = saveImageFile(bmDraw, "/CensorText");
 
                 Uri imageUri = FileProvider.getUriForFile(getApplicationContext(),
@@ -231,27 +245,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(Intent.createChooser(share, "Share Image"));
                 break;
             case R.id.btnSave:
+                reDrawBitmap( true );
                 saveImageFile(bmDraw, "/CensorText");
-                break;
-            case R.id.checkBlock:
-                if (checkBlock.isChecked()) {
-                    checkChar.setChecked(false);
-                    checkLine.setChecked(false);
-                }
-                break;
-
-            case R.id.checkLine:
-                if (checkLine.isChecked()) {
-                    checkBlock.setChecked(false);
-                    checkChar.setChecked(false);
-                }
-                break;
-
-            case R.id.checkChar:
-                if (checkChar.isChecked()) {
-                    checkBlock.setChecked(false);
-                    checkLine.setChecked(false);
-                }
                 break;
 
             default:
@@ -307,29 +302,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return boundingBox;
     }
 
-    private String putTextLine(TextBlock block, Canvas canvas) {
+    private String putTextLine(TextBlock block, Canvas canvas, boolean saveImage) {
         if (null == block) {
             return "";
         }
-        paint.setStrokeWidth(4);
-        paint.setColor(Color.BLUE);
-        block.setBoundingBox(covertPointsToBoundingBox(block.getCornerPoints()));
-        canvas.drawRect(toRect(block.getBoundingBox()), paint);
         if (null != block.getTextLines()) {
-            for (TextLine line : block.getTextLines()) {
+            for (int i = 0; i < block.getTextLines().size(); i++) {
+                TextLine line = block.getTextLines().get( i );
                 paint.setStrokeWidth(2);
-                paint.setColor(Color.GREEN);
+                if (changeRectIndex.indexOf( i ) != -1 ) {
+                    paint.setColor(Color.BLACK);
+                    paint.setStyle( Paint.Style.FILL );
+                } else if (saveImage) {
+                    paint.setColor(Color.TRANSPARENT);
+                    paint.setStyle( Paint.Style.STROKE );
+                } else {
+                    paint.setColor(Color.GREEN);
+                    paint.setStyle( Paint.Style.STROKE );
+                }
                 line.setLineRect(covertPointsToBoundingBox(line.getCornerPoints()));
                 canvas.drawRect(toRect(line.getLineRect()), paint);
-                List<TextElement> elements = line.getElements();
-                if (null != elements) {
-                    for (TextElement element : elements) {
-                        paint.setStrokeWidth(2);
-                        paint.setColor(Color.GREEN);
-                        Rect eRect = toRect(element.getElementRect());
-                        canvas.drawRect(eRect, paint);
-                    }
-                }
             }
         }
 
@@ -351,7 +343,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int columnIndex = cursor.getColumnIndex(pathColumn[0]);
         String picturePath = cursor.getString(columnIndex);  //Get photo path
         cursor.close();
-
+        selectedImagePath = picturePath;
         Bitmap bm = BitmapFactory.decodeFile(picturePath);
         int randValue = (int) (500 * Math.random());
         int x = (int) (bm.getWidth() * Math.random());
@@ -362,7 +354,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int bottom = Math.min(bm.getHeight(), y + randValue);
 
         Rect roi = new Rect(left, top, right, bottom);
-        int level = checkChar.isChecked() ? TextConfiguration.TEXT_LEVAL_CHAR : checkLine.isChecked() ? TextConfiguration.TEXT_LEVAL_LINE : TextConfiguration.TEXT_LEVAL_BLOCK;
+        int level = TextConfiguration.TEXT_LEVAL_BLOCK;
 
         // prepare image
         Frame frame = new Frame();
@@ -393,6 +385,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return;
         }
         List<TextBlock> contents = text.getBlocks();
+        imageTextcontents = text.getBlocks();
         if (null == contents) {
             bmDraw = bm;
             Message msg = new Message();
@@ -409,7 +402,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         result_final = "";
         for (int i = 0; i < contents.size(); i += 1) {
-            String res_str = putTextLine(contents.get(i), canvas);
+            String res_str = putTextLine(contents.get(i), canvas, false);
             if (!res_str.isEmpty()) {
                 result_final += res_str + "\n";
             }
@@ -419,4 +412,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         msg.obj = new Long(t1 - t0).toString() + "ms chars：" + result_final.length() + "  " + String.format("%.2f", (t1 - t0) * 1.0 / result_final.length()) + "ms/char" + "\n" + result_final;
         mHandler.sendMessage(msg);
     }
+
+    private void reDrawBitmap(boolean output) {
+        List<TextBlock> contents = imageTextcontents;
+
+        Bitmap bm = BitmapFactory.decodeFile(selectedImagePath);
+
+        // draw rects in a new bitmap
+        bmDraw = bm.copy(Bitmap.Config.ARGB_8888, true);
+        Canvas canvas = new Canvas(bmDraw);
+
+        Log.e(TAG, "lines.length:" + contents.size());
+
+        result_final = "";
+        for (int i = 0; i < contents.size(); i += 1) {
+            String res_str = putTextLine(contents.get(i), canvas, output);
+            if (!res_str.isEmpty()) {
+                result_final += res_str + "\n";
+            }
+        }
+        Message msg = new Message();
+        msg.what = 0;
+        msg.obj = "Bitmap redrawn";
+        mHandler.sendMessage(msg);
+
+    }
+
 }
